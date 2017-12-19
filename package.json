@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "APP_PORT=8080 node index.js"
+  },
   "name": "simpe_node_server",
   "version": "1.0.0",
   "main": "index.js",

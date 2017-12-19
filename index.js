@@ -1,44 +1,40 @@
+const { resolve } = require('path');
+const { readFile } = require('fs');
 const http = require('http');
+const { APP_PORT = 3000 } = process.env;
 
-function compose(...fns) {
+function render(tpl, ctx, cb) {
+  return readFile(resolve(__dirname, `./views/${tpl}`), function (err, data) {
+    if (err) {
+      console.log('there was an error');
+      return;
+    }
 
+    return cb(eval("`" + data + "`"));
+  });
 }
 
-const homepage = (ctx) => `
-  <html>
-    <link rel="stylesheet" href="https://unpkg.com/normalize.css@7.0.0/normalize.css" />
-    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
-    <style>
-      * {
-        font-family: 'Lato'
-      }
-    </style>
-    <body>
-      <h1>${ctx.message}</h1>
-    </body>
-  </html>
-`;
+function app() {
+  return {
+    listen: function (port, cb) {
+      console.log(`App listening on port ${port}`);
+      http.createServer(function (req, res) {
+        const now = new Date();
 
-const app = () => ({
-  listen(port, cb) {
-    console.log(`App listening on port ${port}`);
-    http.createServer(function (req, res) {
-      const now = new Date();
+        res.on('finish', () => console.log(`${now}: ${req.method} ${req.url} => ${res.statusCode}`));
 
-      res.on('finish', function () {
-        console.log(`${now}: ${req.method} ${req.url} => ${res.statusCode}`);
-      });
-
-      return cb(req, res);
-    }).listen(port);
+        return cb(req, res);
+      }).listen(port);
+    }
   }
-});
+}
 
-app().listen(3000, function (req, res) {
-  body = homepage({
-    message: "Hello World"
+app().listen(APP_PORT, function (req, res) {
+  render('index.tpl', {
+    message: "Hello World!!!"
+  }, function (body) {
+    res.setHeader('content-type', 'text/html');
+    res.setHeader('content-length', body.length);
+    res.end(body);
   });
-  res.setHeader('content-type', 'text/html');
-  res.setHeader('content-length', body.length);
-  res.end(body);
 });
