@@ -19,11 +19,26 @@ const homepage = (ctx) => `
   </html>
 `;
 
-http.createServer(function (req, res) {
+const app = () => ({
+  listen(port, cb) {
+    console.log(`App listening on port ${port}`);
+    http.createServer(function (req, res) {
+      const now = new Date();
+
+      res.on('finish', function () {
+        console.log(`${now}: ${req.method} ${req.url} => ${res.statusCode}`);
+      });
+
+      return cb(req, res);
+    }).listen(port);
+  }
+});
+
+app().listen(3000, function (req, res) {
   body = homepage({
     message: "Hello World"
   });
   res.setHeader('content-type', 'text/html');
   res.setHeader('content-length', body.length);
   res.end(body);
-}).listen(3000);
+});
