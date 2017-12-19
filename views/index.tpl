@@ -7,6 +7,23 @@
     }
   </style>
   <body>
-    <h1>${ctx.message}</h1>
+    <div id="root"></div>
+    <script>
+    (function (global, dom) {
+      config = {
+        endpoint: "http://${process.env.APP_HOST}:${process.env.APP_PORT}/api"
+      };
+      
+      dom.addEventListener('DOMContentLoaded', function () {
+        fetch(config.endpoint)
+          .then(body => body.json())
+          .then(data => {
+            const elm = dom.createElement('span');
+            elm.innerText = data.message;
+            dom.querySelector('#root').appendChild(elm);
+          });
+      })
+    })(window, document)
+    </script>
   </body>
 </html>

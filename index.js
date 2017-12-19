@@ -30,6 +30,27 @@ function app() {
 }
 
 app().listen(APP_PORT, function (req, res) {
+  // take the url
+  const { url } = req;
+
+  // the first "/" is the root so we take it out
+  const path = url.slice(1);
+
+  // the other "/" are separators
+  const components = path.split('/');
+
+  // the first component is the route name
+  const routeName = components[0];
+
+  if (routeName && routeName === 'api') {
+    const body = JSON.stringify({
+      message: "hello World!!"
+    });
+    res.setHeader('content-type', 'application/json');
+    res.setHeader('content-length', body.length);
+    return res.end(body);
+  }
+
   render('index.tpl', {
     message: "Hello World!!!"
   }, function (body) {
